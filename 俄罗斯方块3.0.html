@@ -1,0 +1,694 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>俄罗斯方块</title>
+    <link rel="stylesheet" href="demo.css">
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <div class="box" id="box">
+            <div class="content" id="content">
+                <!--<div class = "main">
+               </div>-->
+            </div>
+            <div class="right">
+                <div class="score">
+                    <span class="fenshu">分数:</span>
+                    <span class="score-box" id="scoreBox">0000</span>
+                </div>
+                <div class="control">
+                    <div class="btn-box">
+                        <button class="stop" id="stop"></button>
+                        <button class="restart" id="restart"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="start" id="start"></button>
+        <div class = "lose" id = "lose">
+            <button class="close" id="close"></button>
+        </div>
+    </div>
+    <script>
+        //各种变量
+        var start = document.getElementById("start");
+        var box = document.getElementById("box");
+        var content = document.getElementById("content");
+        var scoreBox = document.getElementById("scoreBox");
+        var stop = document.getElementById("stop");
+        var restart = document.getElementById("restart");
+        var lose = document.getElementById("lose");
+        var close = document.getElementById("close");
+
+        var room = [],
+            poZ = [],
+            speed = 1000,
+            num,
+            poX,
+            poY,
+            count,
+            upSum,
+            t,
+            center,
+            house,
+            timer;
+
+        //添加方法
+        start.addEventListener("click", startGame, false);
+        stop.addEventListener("click", stopGame, false);
+        restart.addEventListener("click", restartGame, false);
+        close.addEventListener("click", closeGame, false);
+
+        //函数都在这里
+
+        //这是关于游戏开始的函数
+
+
+        function startGame() {
+
+            this.style.display = "none";
+            box.style.display = "block"
+            for (var i = 0; i < 20; i++) {
+                for (var j = 0; j < 14; j++) {
+                    var con = document.createElement("div");
+                    con.classList.add("block");
+                    if (j == 0 || j == 13 || i == 19) { con.classList.add("border") };
+                    if (i < 2 && j != 0 && j != 13) { con.classList.add("header") };
+                    con.setAttribute("id", i + "-" + j);
+                    content.appendChild(con);
+                    //这段辅助使用，js写完后要删掉，使用main显示
+                    if (i > 18 || j == 0 || j == 13) {
+                        room.push({ data: 1 })
+
+                    } else {
+                        room.push({ data: 0 })
+                    }
+
+                }
+
+            }//生成格子和定义data;
+            //for(var i = 0; i < 2; i++){
+            //    for(var j = 5;j < 9; j++){
+            //    document.getElementById(i + "-" + j).style.backgroundColor = "yellow";
+
+            // }
+
+            //    }
+            factory();
+            timer = setInterval(drop, 1000);
+        }
+
+        //生成方块
+        function factory() {
+            var x,
+                y,
+                center = [[1, 7],
+                [1, 6],
+                [1, 6],
+                [0, 6],
+                [0, 6],
+                [1, 6],
+                [1, 6]
+                ],
+                house = [[[1, 5], [1, 6], [1, 7], [1, 8]], // -
+                [[0, 6], [0, 7], [1, 6], [1, 7]], // O
+                [[0, 6], [1, 5], [1, 6], [1, 7]], // T
+                [[0, 5], [1, 5], [1, 6], [1, 7]],//J
+                [[0, 7], [1, 5], [1, 6], [1, 7]],//L
+                [[0, 6], [0, 7], [1, 5], [1, 6]], //S
+                [[0, 5], [0, 6], [1, 6], [1, 7]], //Z
+                ];
+
+            num = Math.floor(Math.random() * 7);
+            for (var i = 0; i < 4; i++) {
+                poX = house[num][i][0];
+                poY = house[num][i][1];
+                document.getElementById(poX + "-" + poY).classList.add("shadow");
+                poZ.push([poX, poY]);
+            };
+            poZ[4] = center[num];
+            upSum = 0;
+            document.addEventListener("keydown", move, false);
+        }
+
+        //自由下落
+        function drop() {
+            if (!check.drop()) {
+                for (var i = 0; i < 4; i++) {
+                    var temArr,
+                        tem;
+                    temArr = poZ[i];
+                    temArr[0] = temArr[0] + 1;
+                    tem = (temArr[0]) * 14 + temArr[1];
+                    room[tem].data = 1;
+                    document.getElementById(temArr[0] + "-" + temArr[1]).classList.add("shadow");
+                    poZ[i] = temArr;
+                }
+                poZ[4][0] = poZ[4][0] + 1;
+
+            } else {
+                for (var i = 0; i < 4; i++) {
+                    var temArr,
+                        tem;
+                    temArr = poZ[i];
+                    tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 1;
+                    document.getElementById(temArr[0] + "-" + temArr[1]).classList.add("shadow");
+                }
+                window.clearInterval(timer);
+                var ph = 0;
+                for(var i = 0;i < 2; i++){
+                    for(var j = 1; j < 13 ; j++ ){
+                     if(document.getElementById(i + "-" + j).classList.contains("shadow")){
+                           ph ++;
+                      }
+                  }
+                 
+         }
+              if(ph == 0){
+                score();
+                poZ = [];
+                document.removeEventListener("keydown", move, false);
+                upSum = 0;
+                t = upSum % 4;
+                factory();
+                timer = setInterval(drop, speed);
+              }else{
+                lose.style.display = "block";
+                document.removeEventListener("keydown", move, false);
+                }
+            }
+        }
+
+ 
+
+
+
+        function move(e) {
+            var event = e || window.event;
+            var target = event.target || src.element;
+            switch (e.which) {
+                case 37:
+                    leftMove();
+                    break;
+                case 38:
+                    upSum++;
+                    t = upSum % 4;
+                    up(t);
+                    break;
+                case 39:
+                    rightMove();
+                    break;
+                case 40:
+                    downMove();
+                    break;
+            }
+        }
+
+
+        //向左移动
+
+        function leftMove() {
+
+            if (!check.left()) {
+                for (var j = 0; j < 4; j++) {
+                    poZ[j][1] -= 1;
+                    room[poZ[j][0] * 14 + poZ[j][1]].data = 1;
+                    document.getElementById(poZ[j][0] + "-" + poZ[j][1]).classList.add("shadow");
+                }
+                poZ[4][1] -= 1;
+            } else {
+                recovery();
+            }
+
+        }
+
+        //向右移动
+
+        function rightMove() {
+
+            if (!check.right()) {
+                for (var j = 0; j < 4; j++) {
+                    poZ[j][1] += 1;
+                    room[poZ[j][0] * 14 + poZ[j][1]].data = 1;
+                    document.getElementById(poZ[j][0] + "-" + poZ[j][1]).classList.add("shadow");
+                }
+                poZ[4][1] += 1;
+            } else {
+                recovery();
+            }
+        }
+
+
+
+
+        //向下运动
+
+        function downMove() {
+
+            if (!check.drop()) {
+                for (var j = 0; j < 4; j++) {
+                    poZ[j][0] += 1;
+                    room[poZ[j][0] * 14 + poZ[j][1]].data = 1;
+                    document.getElementById(poZ[j][0] + "-" + poZ[j][1]).classList.add("shadow");
+                }
+                poZ[4][0] += 1;
+            } else {
+                recovery();
+            }
+        }
+
+        //变形
+        function up(t) {
+            switch (num) {
+                case 0:
+                    zero(t)
+                    break;
+                case 1:
+                    return;
+                case 2:
+                    second(t)
+                    break;
+                case 3:
+                    third(t);
+                    break;
+                case 4:
+                    forth(t);
+                    break;
+                case 5:
+                    fifth(t);
+                    break;
+                case 6:
+                    sixth(t);
+                    break;
+
+            }
+            function zero(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x, y - 2], [x, y - 1], [x, y], [x, y + 1]]
+                come(newArr);
+            } else {
+                var newArr = [[x - 2, y], [x - 1, y], [x, y], [x + 1, y]]
+                come(newArr);
+            };
+
+        }
+
+        function second(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x - 1, y], [x, y - 1], [x, y], [x, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x, y - 1], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y], [x, y - 1], [x, y], [x + 1, y]];
+                come(newArr);
+            }
+        }
+
+        function third(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y + 1], [x, y + 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y + 1]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x, y - 1], [x + 1, y - 1]];
+                come(newArr);
+            }
+        }
+
+        function forth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x + 1, y]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y - 1]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]];
+                come(newArr);
+            }
+        }
+        function fifth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x - 1, y], [x - 1, y + 1], [x, y - 1], [x, y]];
+                come(newArr);
+            } else if (t == 1 || t == 3) {
+                var newArr = [[x - 1, y - 1], [x, y - 1], [x, y], [x + 1, y]];
+                come(newArr);
+            };
+
+        }
+
+        function sixth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y + 1]];
+                come(newArr);
+            } else if (t == 1 || t == 3) {
+                var newArr = [[x - 1, y + 1], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            };
+
+        }
+        }
+
+        function zero(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x, y - 2], [x, y - 1], [x, y], [x, y + 1]]
+                come(newArr);
+            } else {
+                var newArr = [[x - 2, y], [x - 1, y], [x, y], [x + 1, y]]
+                come(newArr);
+            };
+
+        }
+
+        function second(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x - 1, y], [x, y - 1], [x, y], [x, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x, y - 1], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y], [x, y - 1], [x, y], [x + 1, y]];
+                come(newArr);
+            }
+        }
+
+        function third(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x, y - 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y + 1], [x, y + 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y + 1]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x, y - 1], [x + 1, y - 1]];
+                come(newArr);
+            }
+        }
+
+        function forth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0) {
+                var newArr = [[x, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]];
+                come(newArr);
+            } else if (t == 1) {
+                var newArr = [[x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x + 1, y]];
+                come(newArr);
+            } else if (t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x - 1, y + 1], [x, y - 1]];
+                come(newArr);
+            } else {
+                var newArr = [[x - 1, y], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]];
+                come(newArr);
+            }
+        }
+        function fifth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x - 1, y], [x - 1, y + 1], [x, y - 1], [x, y]];
+                come(newArr);
+            } else if (t == 1 || t == 3) {
+                var newArr = [[x - 1, y - 1], [x, y - 1], [x, y], [x + 1, y]];
+                come(newArr);
+            };
+
+        }
+
+        function sixth(t) {
+            var x = poZ[4][0];
+            var y = poZ[4][1];
+            if (t == 0 || t == 2) {
+                var newArr = [[x - 1, y - 1], [x - 1, y], [x, y], [x, y + 1]];
+                come(newArr);
+            } else if (t == 1 || t == 3) {
+                var newArr = [[x - 1, y + 1], [x, y], [x, y + 1], [x + 1, y]];
+                come(newArr);
+            };
+
+        }
+
+
+
+        //检查运动是否合法
+        var check = {
+            drop: function () {
+                count = 0;
+                for (var i = 3; i >= 0; i--) {
+                    var temArr = poZ[i];
+                    var tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 0;
+                    document.getElementById(temArr[0] + "-" + temArr[1]).classList.remove("shadow");
+                    if (room[tem + 14].data == 1) {
+                        count++;
+                    };
+                };
+                return count;
+            },
+            left: function () {
+                count = 0;
+                for (var i = 3; i >= 0; i--) {
+                    var temArr = poZ[i];
+                    var tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 0;
+                }
+                for (var i = 3; i >= 0; i--) {
+                    var temArr = poZ[i];
+                    var tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 0;
+                    document.getElementById(temArr[0] + "-" + temArr[1]).classList.remove("shadow");
+                    if (tem < 28 || room[tem - 1].data == 1) {
+                        count++;
+
+                    };
+                };
+                return count;
+            },
+
+            right: function () {
+                count = 0;
+                for (var i = 3; i >= 0; i--) {
+                    var temArr = poZ[i];
+                    var tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 0;
+                }
+                for (var i = 3; i >= 0; i--) {
+                    var temArr = poZ[i];
+                    var tem = temArr[0] * 14 + temArr[1];
+                    room[tem].data = 0;
+                    document.getElementById(temArr[0] + "-" + temArr[1]).classList.remove("shadow");
+                    if (tem < 28 || room[tem + 1].data == 1) {
+                        count++;
+                    }
+                };
+                return count;
+            },
+        }
+
+        function recovery() {
+            for (var i = 0; i < 4; i++) {
+                var temArr,
+                    tem;
+                temArr = poZ[i];
+                tem = temArr[0] * 14 + temArr[1];
+                room[tem].data = 1;
+                document.getElementById(temArr[0] + "-" + temArr[1]).classList.add("shadow");
+            }
+        }
+
+
+        function come(newArr) {
+            count = 0;
+            for (var i = 0; i < 4; i++) {
+                var temArr = poZ[i];
+                var tem = temArr[0] * 14 + temArr[1];
+                room[tem].data = 0;
+                document.getElementById(temArr[0] + "-" + temArr[1]).classList.remove("shadow");
+            }
+            for (var j = 0; j < 4; j++) {
+                var tem1 = newArr[j][0] * 14 + newArr[j][1];
+                if (tem1 < 28 || room[tem1].data == 1) {
+                    count++;
+                }
+            };
+            if (count == 0) {
+                for (var k = 0; k < 4; k++) {
+                    var tem2;
+                    poZ[k] = newArr[k];
+                    tem2 = poZ[k][0] * 14 + poZ[k][1];
+                    room[tem2].data = 1;
+                    document.getElementById(poZ[k][0] + "-" + poZ[k][1]).classList.add("shadow");
+                }
+            } else {
+                recovery();
+            }
+        }
+
+
+        function score() {
+            var temX = poZ[3][0],
+                temArr = [], //接收第i行满格 
+                row = 0; // 行
+            for (var i = 2; i <= temX; i++) {
+                var col = 0;
+                for (var j = 12; j > 0; j--) {
+                    var tm = i + "-" + j;
+                    if (document.getElementById(tm) && document.getElementById(tm).classList.contains("shadow")) {
+                        col++;
+                    }
+                }
+                if (col == 12) {
+                    row++;
+                    for(var k = 12; k > 0; k--){
+                       var tm1 = i + "-" + k;
+                        room[i * 14 + k].data = 0;
+                        document.getElementById(tm1).classList.remove("shadow");
+                   }
+                                      for (var m = i - 1; m >= 2; m--) {
+                    for (var n = 12; n > 0; n--) {
+                        if (document.getElementById(m + "-" + n).classList.contains("shadow")) {
+                            var prop = m + 1;
+                            document.getElementById(m  + "-" + n).classList.remove("shadow");
+                            room[m * 14 + n].data = 0;
+                            room[prop * 14 + n].data = 1;
+                            document.getElementById(prop + "-" + n).classList.add("shadow");
+
+                         }
+                     }
+                  }
+
+                }
+            }
+//计分算法
+            if (row) {
+                var scoreNum = +scoreBox.innerText;
+                speed -= scoreNum % 1000 * 10;//
+                switch (row) {
+                    case 1:
+                        scoreNum += row * 1000;
+                        break;
+                    case 2:
+                        scoreNum += row * 1500;
+                        break;
+                    case 3:
+                        scoreNum += row * 2000;
+                        break;
+                    case 4:
+                        scoreNum += row * 3000;
+                        break;
+                };
+                scoreBox.innerText = scoreNum;
+
+
+            }
+        }
+
+        function stopGame() {
+            window.clearInterval(timer);
+            document.removeEventListener("keydown", move, false);
+        }
+
+        function restartGame() {
+            timer = setInterval(drop, speed);
+            document.addEventListener("keydown", move, false);
+        }
+
+        function closeGame(){
+       for(var i = 0; i < 20; i ++){ 
+             for(j = 1; j < 13; j++){
+               if(document.getElementById(i + "-" + j).classList.contains("shadow"))  { 
+                   document.getElementById(i + "-" + j).classList.remove("shadow")
+                    room[i*14 + j].data = 0;
+    }      
+  }
+ }
+                lose.style.display = "none";
+                scoreBox.innerText = "0000";
+                poZ = [];
+                speed = 1000;
+                document.addEventListener("keydown", move, false);
+                upSum = 0;
+                t = upSum % 4;
+                factory();
+                timer = setInterval(drop, speed);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>

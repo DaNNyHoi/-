@@ -1,0 +1,180 @@
+*{
+  margin: 0px;
+  padding : 0px;
+}
+
+.wrapper{
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  background-image: url(bc2.jpg);
+}
+
+.box{
+  display: none;
+  margin: 0 auto;
+  margin-top: 40px;
+  width: 720px;
+  height: 600px;
+
+}
+
+.content{
+  float: left;
+  width: 420px;
+  height: 600px;
+
+
+}
+
+.main{
+  margin: 60px 30px 30px;
+  width: 360px;
+  height: 510px;
+
+}
+
+
+.start{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 18px;  
+  color: #fff;
+  line-height: 60px;
+  margin-left: -80px;
+  z-index: 999;
+  width: 160px;
+  height: 60px;
+  border-radius: 30px;
+  background-image: url(game.jpg);
+  background-size: 100% 100%;
+}
+
+
+
+
+.block{
+  float: left;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;   
+}
+
+
+.border{
+  background-color:rgb(112,128,144,0.6); 
+}
+
+.header{
+  background-color:rgb(	255,215,0,0.6);
+}
+
+.content .shadow{
+  border:1px solid #424242;
+  box-sizing: border-box;
+  background-color: #008080;
+}
+
+
+.right{
+  float: right;
+  margin-top: 120px;
+  width: 150px;
+  height: 480px;
+}
+
+.score{
+  width: 150px;
+  height: 90px;   
+  border: 10px solid rgb(240,248,255,0.5);
+  border-radius: 15px;
+}
+
+.fenshu{
+   display: block;
+   width: 150px;
+   height: 40px;  
+   margin-left: 5px; 
+   font-size: 32px;
+   font-weight: bolder;
+   line-height: 60px;
+   color: #FA8072;
+}
+
+
+.score-box{
+   display: inline-block;
+   width: 150px;
+   height: 50px;  
+   font-size: 26px;
+   font-weight: bold;
+   color: #FFD700;
+   line-height: 50px;
+   text-align: center; 
+}
+
+
+.control{
+  margin-top: 30px;
+  width: 150px;
+  height: 90px;   
+}
+
+.btn-box{
+  width: 150px;
+  height: 60px;   
+  margin-top: 15px;
+}
+
+.btn-box button{
+  margin-left:10px;
+  width: 60px;
+  height: 60px;   
+}
+
+.stop{
+  background-image: url(stop.jpg);
+  background-size: 100% 100%;
+  border-radius: 50%;
+}
+
+
+.restart{
+  background-image: url(restart.jpg);
+  background-size: 100% 100%;
+  border-radius: 50%;
+}
+
+
+.lose{
+  display: none;
+  z-index: 9999;
+  position: relative;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  margin-top: -500px;
+  width: 520px;
+  height: 400px;
+  background-image: url(lose.jpg);
+  background-size: 100% 100%;  
+}
+
+.close{
+  position: absolute;
+  right: 0px;
+  width: 50px;
+  height: 50px;
+  background-image: url(close.jpg);
+  background-size: 100% 100%;  
+  border-radius: 50%;
+}
+
+
+.close:hover{
+  width: 45px;
+  height: 45px;
+}
